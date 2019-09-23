@@ -1,15 +1,27 @@
+//请求Nodejs提供的path模块
+// path有一个方法：resolve(参数1，参数2)
+// 参数1：__dirname表示当前目录的路径
+// 参数2：需要追加的目录名，不需要写/，resolve方法会帮我们自动追加/
 var path = require('path');
 var ExtractTextPlugin = require('extract-text-webpack-plugin');
 var HtmlWebpackPlugin = require('html-webpack-plugin');
 
+// 接口字符串
+var str = new Buffer('aHR0cDovL3Rlc3QuaGFwcHltbWFsbC5jb20v', 'base64');
 var WEBPACK_ENV = process.env.WEBPACK_ENV || 'dev';
-var getHtmlConfin = function(name){
-	return{
-		template:'./src/view/'+ name +'.html',
-			filename:'view/'+ name +'.html',
-			inject:true,
-			hash:true,
-			chunks:['common',name]
+
+var getHtmlConfig = function(name){
+	return {
+		// 对哪个html文件进行打包
+		template: './src/view/'+ name +'.html',
+		// 打包以后的路径和文件
+		filename: 'view/'+ name +'.html',
+		// 自动注入
+		inject: true,
+		// 哈希值
+		hash: true,
+		// 有哪些打包后的js文件需要被注入到html文件中
+		chunks: ['common', name]
 	}
 }
 
@@ -21,50 +33,78 @@ var config = {
 	},
 	output: {
 		path: path.resolve(__dirname, 'dist'),
-		publicPath:'/dist',
-		filename:'js/[name].js'
+		publicPath: '/dist',
+		filename: 'js/[name].js'
 	},
-	externals:{
-		'jquery' : 'window.jQuery'
+	externals: {
+		'jquery'  : 'window.jQuery'
 	},
-	// optimization:{
-	// 	splitChunks:{
-	// 		cacheGroups:{
-	// 			commons:{
-	// 				name:'base',
-	// 				chunks:'initial',
-	// 				minChunks: 2,
-	// 				minSize: 0				
-	// 			}	
-	// 		}
-	// 	}
-	// },
-	module:{
-		rules:[
+	//webpack4的新写法
+	/*optimization: {
+		// 抽取公共模块的对象
+		splitChunks: {
+			// 缓存组
+			cacheGroups:{
+				//commons表示公共的模块
+				commons: {
+					//即会生成独立通用模块base.js文件(位置以output为准)
+					name: 'base',
+					chunks: 'initial',
+					//最小2个文件有公共内容才提取
+					minChunks: 2,
+					//SplitChunksPlugin默认地只会分离大于30Kb的文件
+            		//我们的公共文件并没有大于30Kb，所以改为0之后就完美了
+					minSize: 0
+				}
+			}
+		}
+	},*/
+	module: {
+		rules: [
 			{
 				test:/\.css$/, 
-				//loader:"style-loader!css-loader",
+				// loader: "style-loader!css-loader",
 				loader: ExtractTextPlugin.extract({
-					fallback:"style-loader",
-					use:"css-loader"
+					fallback: "style-loader",
+					use: "css-loader"
 				})
 			},
 			{
-				test:/\.(gif|png|jpg|woff|svg|eot|ttf).??.*$/,
-				loader:'url-loader?limit=100&name=resource/[name].[ext]'
+				test:/\.(gif|png|jpg|woff|svg|eot|ttf).??.*$/, 
+				loader: 'url-loader?limit=100&name=resource/[name].[ext]'
 			}
 		]
 	},
-	plugins:[
+	plugins: [
 		new ExtractTextPlugin("css/[name].css"),
-		new HtmlWebpackPlugin(getHtmlConfin('index')),
-		new HtmlWebpackPlugin(getHtmlConfin('user-login')),
-	]
-		
-}	
-
-if('dev'===WEBPACK_ENV){
-	config.entry.common.push('webpack-dev-server/client?http://localhost:8088');
+		new HtmlWebpackPlugin(getHtmlConfig('index')),
+		new HtmlWebpackPlugin(getHtmlConfig('user-login'))
+	],
+	resolve: {
+		alias: {
+			util : path.resolve(__dirname, 'src/util'),
+			"@": path.resolve(__dirname,'src/page'),
+			node_modules: path.resolve(__dirname, 'node_modules'),
+			service: path.resolve(__dirname,'src/service'),
+		}
+	},
+	devServer: {
+		port: 8088,
+		inline: true,
+		// 配置代理实现跨域
+		// 当访问localhost:8088/**/*.do的时候就跳转到
+		//【网络接口】+ /**/*.do
+		proxy: {
+			"**/*.do": {
+				target: str.toString(),
+				changeOrigin: true
+			}
+		}
+	}
 }
-			
+
+//如果是开发环境，那么添加一个数组元素
+if ('dev' === WEBPACK_ENV) {
+	config.entry.common.push('webpack-dev-server/client?http://localhost:8089');
+}
 module.exports = config;

@@ -1,2 +1,4 @@
 'use strict'
-console.log("I am the!");
+
+require('./layout.css');
+require('node_modules/font-awesome/css/font-awesome.min.css');

@@ -1,4 +1,5 @@
-'use strict'
-require('./index.css');
-
-$('body').html("羊驼不是草泥马!!")
+'use strict';
+ require('./index.css');
+ 
+ var _mm = require('util/mm.js');
+ require('@/common/nav/index.js');

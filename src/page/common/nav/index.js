@@ -32,17 +32,22 @@ var nav = {
 	},
 	// 加载用户信息
 	loadUserInfo: function(){
-		_user.checkLoging(function(res){
+		_user.checkLogin(function(res){
 			$('.user.not-login').hide().siblings('.user.login').show()
 				.find('.username').text('res.username')
-		} function(errMsg){
+		}, function(errMsg){
 			//do nothing
-		}),
+		});
 	},
 	// 加载购物车数量
 	loadCartCount: function(){
-
-	},
+		_cart.getCartCount(function(res){
+			$('.nav .cart-count').text(res || 0);
+		}, function(errMsg){
+		//如果出错直接设置为0
+		$('.nav .cart-count').text(0);
+		});
+	}
 }
 
 module.exports = nav.init();

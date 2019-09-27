@@ -8,4 +8,8 @@ require('@/common/nav-side/index.js');
 
 var _mm = require('util/mm.js');
 
-var navSide = require('@/common')
+var navSide = require('@/common/nav-side/index.js')
+
+navSide.init({
+	name:'user-center'
+});

@@ -2,7 +2,7 @@
 	float: left;
 	width: 130px;
 	min-height: 100px;
-	background-color: #DCDCDC;
+	/*background-color: #DCDCDC;*/
 }
 .nav-side .nav-item{
 	line-height: 25px;
@@ -13,5 +13,5 @@
 	color: #888;
 }
 .nav-side .nav-item.active .link{
-	background-color: #C60023;
+	color: #C60023;
 }
